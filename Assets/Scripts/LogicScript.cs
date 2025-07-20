@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Collections;
+using System.Text;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -11,6 +12,7 @@ public class LogicScript : MonoBehaviour
     public Text scoreText;
     public Text debugText;
     public GameObject gameOverScreen;
+    public AudioSource audioSource;
 
     private void Update()
     {
@@ -25,6 +27,7 @@ public class LogicScript : MonoBehaviour
     {
         playerScore += scoreToAdd;
         scoreText.text = playerScore.ToString();
+        audioSource.Play();
     }
 
     public void RestartGame()
@@ -36,7 +39,11 @@ public class LogicScript : MonoBehaviour
     {
         IsAlive = false;
         gameOverScreen.SetActive(true);
-       
+        if (playerScore > PlayerPrefsUtils.GetMaxPlayerScore())
+        {
+            PlayerPrefsUtils.SetMaxPlayerScore(playerScore);
+            StartCoroutine(AddNewRecordText());
+        }
     }
 
     public void SetDebugText(DebugTextEntry entry)
@@ -47,6 +54,12 @@ public class LogicScript : MonoBehaviour
         sb.AppendLine(entry.currentPositionGame.ToString());
 
         debugText.text = sb.ToString();
+    }
+
+    public IEnumerator AddNewRecordText()
+    {
+        yield return new WaitForSeconds(2);
+        scoreText.text = scoreText.text + "\nNew Record!";
     }
 
     public class DebugTextEntry
